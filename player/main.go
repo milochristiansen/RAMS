@@ -31,7 +31,7 @@ import "strings"
 import "strconv"
 import "io/ioutil"
 
-import "rams/helpers"
+import "github.com/milochristiansen/RAMS/helpers"
 
 var MediaRoot = "\\\\FREENAS\\Global Documents\\Music\\"
 var DBServer = "http://127.0.0.1:2330"

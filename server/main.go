@@ -29,8 +29,8 @@ import "io/ioutil"
 
 import "flag"
 
-import "rams/db"
-import "rams/helpers"
+import "github.com/milochristiansen/RAMS/db"
+import "github.com/milochristiansen/RAMS/helpers"
 
 var Addr = ""
 

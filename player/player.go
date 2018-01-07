@@ -30,7 +30,7 @@ import "errors"
 import "os"
 import "encoding/json"
 
-import "rams/helpers"
+import "github.com/milochristiansen/RAMS/helpers"
 
 //#include <stdlib.h>
 //#include <vlc/vlc.h>
