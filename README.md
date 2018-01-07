@@ -7,8 +7,8 @@ decentralized player architecture.
 
 Currently RAMS has three main pieces: The metadata server, the player daemon, and the UI.
 
-This repository is incomplete. I am in the process of changing some of the system internals, adding each part as I am
-ready to work on it.
+The version of this app stored in the repository is currently a work in progress. Everything compiles, but peripheral
+utilities are missing and there may be API incompatibilities between tools.
 
 TODO:
 -------------------------------------------------------------------------------------------------------------------------
