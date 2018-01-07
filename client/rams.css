@@ -1,0 +1,431 @@
+
+html {
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	background: linear-gradient(to right, #0d0d0d 0%, #1c1917 24%, #1c1917 76%, #0d0d0d 100%);
+	color: #868685;
+
+	margin: 0.5em;
+	width: calc(100% - 1em);
+	height: calc(100% - 1em);
+
+	font-family: 'Roboto', sans-serif;
+	font-size: 9pt;
+}
+
+input {
+	color: #202020;
+	background: #868685;
+}
+
+/* Get my old skinny scrollbars back */
+
+::-webkit-scrollbar {
+	background: linear-gradient(to bottom, #868685 0%, #565655 24%, #565655 76%, #868685 100%);
+}
+
+::-webkit-scrollbar-thumb {
+	background: linear-gradient(to bottom, #0d0d0d 0%, #1c1917 24%, #1c1917 76%, #0d0d0d 100%);
+	
+	border: 2px solid transparent;
+	background-clip: content-box;
+}
+
+/* Buttons and tooltips */
+
+div.buttonbar {
+	height: 1.5em;
+}
+
+input.buttonbar {
+	padding: 0px 0px 0px 0px;
+	font-size: 9pt;
+
+	width: 1.5em;
+	height: 1.5em;
+}
+
+input + span.tooltip {
+	visibility: hidden;
+
+	background: linear-gradient(to right, #868685 0%, #565655 24%, #565655 76%, #868685 100%);
+	color: #0d0d0d;
+
+	border-radius: 6px;
+	padding: 5px;
+
+
+	position: absolute;
+	z-index: 1;
+}
+
+input:hover + span.tooltip {
+	visibility: visible;
+}
+
+/* Fake table stuff */
+
+div.header {
+	font-weight: bold;
+
+    display: flex;
+    flex-direction: row;
+
+	cursor: default;
+	user-select: none;
+}
+
+div.header:after {
+	display: table-cell;
+	content: "";
+	overflow-y: scroll;
+	visibility: hidden;
+}
+
+div.header span + span {
+	border-left: 0.2em solid #000
+}
+
+div.list {
+	flex: 1;
+
+	display: flex;
+	flex-direction: column;
+
+	overflow-y: scroll !important; /* Needed to fix that stupid "overflow: auto;" */
+}
+
+div.list-row {
+    display: flex;
+    flex-direction: row;
+
+    width: 100%;
+
+	cursor: default;
+	user-select: none;
+}
+
+div.list-row span {
+	white-space: nowrap;
+	overflow: hidden;
+    border-top: 0.1em solid #000
+}
+
+div.list-row span + span {
+	border-left: 0.2em solid #000
+}
+
+div.list-row.selected {
+	background: linear-gradient(to right, #868685 0%, #565655 24%, #565655 76%, #868685 100%);
+	color: #0d0d0d;
+}
+
+div.list-row span.util,
+div.header span.util, {
+	width: 2em;
+}
+
+div.list-row span.artist,
+div.header span.artist {
+	width: 20em;
+}
+
+div.list-row span.album,
+div.header span.album {
+	width: 15em;
+}
+
+div.list-row span.number,
+div.header span.number {
+	width: 1.8em;
+	text-align:center;
+}
+
+div.list-row span.name,
+div.header span.name {
+	width: 20em;
+}
+
+div.list-row span.time,
+div.header span.time {
+	width: 3em;
+	text-align:center;
+}
+
+div.list-row span.year,
+div.header span.year {
+	width: 2.8em;
+	text-align:center;
+}
+
+div.list-row span.fill,
+div.header span.fill {
+	flex: 1;
+}
+
+div.list-row span.button,
+div.header span.button {
+	width: 0.6em;
+	text-align:center;
+	background-color: darkgray;
+	color: black;
+}
+
+/* Now playing track info */
+
+.marquee {
+	width: 100%;
+
+	cursor: default;
+	user-select: none;
+
+	overflow: hidden;
+}
+
+.marquee-inner {
+	display: inline-block;
+	animation: marquee_inner 10s linear infinite alternate;
+}
+
+.marquee-content {
+	animation: marquee_content 10s linear infinite alternate;
+	white-space: nowrap;
+}
+
+@keyframes marquee_inner {
+  0% { margin-left:0; }
+  100% { margin-left: 100%; }
+}
+@keyframes marquee_content {
+  0% { margin-left:0; }
+  100% { margin-left:-100%; }
+}
+
+/* Layout */
+
+.hdivider {
+	height: 0.2em;
+	width: 100%;
+	background-color: black;
+}
+
+.vdivider {
+	height: 100%;
+	width: 0.2em;
+	background-color: black;
+}
+
+.page {
+	width: 100%;
+	height: 100%;
+
+	display: flex;
+	flex-direction: row;
+}
+
+.main-view {
+	flex: 1;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.now-playing {
+	flex: 0 1 auto;
+
+	display: flex;
+	flex-direction: row;
+}
+
+.now-playing .buttons {
+	flex: 0 1 auto;
+	padding-right: .5em;
+	/*width: 9.4em;*/
+}
+
+.now-playing .play-time {
+	flex: 0 1 auto;
+	padding-right: .5em;
+
+	font-size: 11pt;
+	/*width: 6em;*/
+}
+
+.now-playing .gutter {
+	height: auto;
+	flex: 1 1 auto;
+
+	background: linear-gradient(to right, #868685 0%, #565655 24%, #565655 76%, #868685 100%);
+}
+
+.now-playing .thumb {
+	width: 5.0em;
+	height: 1.2em;
+	display: block;
+
+	position: absolute;
+
+	background: linear-gradient(to bottom, #0d0d0d 0%, #1c1917 24%, #1c1917 76%, #0d0d0d 100%);
+	
+	border: 2px solid transparent;
+	background-clip: content-box;
+}
+
+.top-bar {
+	flex: 1;
+
+	display: flex;
+	flex-direction: row;
+}
+
+.artist-pane {
+	flex: 1;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.album-pane {
+	flex: 1;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.button-bar {
+	flex: 0 1 auto;
+
+	display: flex;
+	flex-direction: row;
+}
+
+.button-bar .element {
+	flex: 1;
+}
+
+.track-pane {
+	flex: 1;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.side-bar {
+	flex: 0 1 auto;
+	width: 25%;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.playlist-pane {
+	flex: 1;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.playlist-pane .plheader {
+	flex: 0 1 auto;
+
+	font-weight: bold;
+	text-align: center;
+
+	cursor: default;
+	user-select: none;
+}
+
+.playlist-pane .plbody {
+	flex: 1 1 auto;
+
+	overflow-y: scroll;
+}
+
+.playlist-pane .pldelete {
+	min-height: 5px;
+	background-color: darkred;
+}
+
+.art-pane {
+	flex: 0 1 auto;
+}
+
+/* This BS is to make the image as wide as possible and vertically centered. */
+/* No more issues with different image aspect ratios ruining the layout. */
+div.art-holder {
+	display: block;
+
+	/* make sure width is as large as possible and height exactly matches it */
+	width: 100%;
+	height: auto;
+	padding-top: 100%;
+	position: relative;
+
+	/* Use the light background so that the image area is distinct */
+	background: linear-gradient(to right, #868685 0%, #565655 24%, #565655 76%, #868685 100%);
+	color: #0d0d0d;
+}
+
+.art-holder img {
+	display: block;
+	
+	/* vertically center */
+	margin-top: auto;
+	margin-bottom: auto;
+
+	/* stay withing bounds */
+	max-width: 100%;
+	max-height: 100%;
+
+	/* fill are specified by parent */
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.edit-box {
+	position: fixed;
+
+	border-top: 3px solid #000;
+	border-bottom: 3px solid #000;
+	border-radius: 5px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+
+	background: linear-gradient(to right, #0d0d0d 0%, #1c1917 24%, #1c1917 76%, #0d0d0d 100%);
+
+	margin: 5px 5px 5px 5px;
+
+	width: 25%;
+}
+
+.edit-box-header {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 5px;
+	background: #ddd;
+
+	cursor: default;
+	user-select: none;
+}
+
+.edit-box-label {
+	cursor: default;
+	user-select: none;
+}
+
+.edit-box-backplate {
+	z-index: 9998;
+
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+
+	background: rgba(0, 0, 0, .1);
+	transition: opacity .3s ease;
+}

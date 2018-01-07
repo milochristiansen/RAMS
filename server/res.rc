@@ -1,0 +1,32 @@
+#include <windows.h>
+
+IDI_ICON1               ICON    DISCARDABLE     "./../client/rams.ico"
+
+1 VERSIONINFO
+    FILEVERSION     1,0,0,0
+    PRODUCTVERSION  1,0,0,0
+    FILEOS          VOS_NT
+    FILETYPE        VFT_APP
+    FILESUBTYPE     VFT2_UNKNOWN
+    FILEFLAGSMASK   0x00000000
+    FILEFLAGS       0x00000000
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "04090025"
+        {
+            VALUE "CompanyName", "Double Click Technologies"
+            VALUE "FileDescription", "RAMS: Remote Audio Metadata Server"
+            VALUE "FileVersion", "1.0"
+            VALUE "InternalName", "RAMS"
+            VALUE "LegalCopyright", "2017 Milo Christiansen"
+            VALUE "OriginalFilename", "server.exe"
+            VALUE "ProductName", "RAMS"
+            VALUE "ProductVersion", "1.0"
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x0409, 0x0025
+    }
+}

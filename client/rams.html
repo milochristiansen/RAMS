@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>RAMS - Remote Audio Metadata Server</title>
+
+	<link rel="icon" href="./rams.ico"/>
+
+	<link rel="stylesheet" type="text/css" href="./rams.css"/>
+
+	<script type="text/javascript" src="./libs/jquery.js"></script>
+
+	<script type="text/javascript" src="./libs/hyperlist.js"></script>
+
+	<script type="text/javascript" src="./libs/reconnecting-websocket.js"></script>
+
+	<script type="text/javascript" src="./libs/vue.js"></script>
+
+	<script type="text/javascript" src="./libs/Sortable.js"></script>
+	<script type="text/javascript" src="./libs/vuedraggable.min.js"></script>
+ 
+	<script type="text/javascript" src="./rams.js"></script>
+</head>
+<body><div id="Main" class="page" v-on:mousemove="drag" v-on:mouseup="dragend"><!-- For simplicity this entire page is one giant Vue object. -->
+
+<div class="main-view">
+	<div class="now-playing">
+		<div class="buttons">
+			<input type="button" v-on:click="settingsShow = true" class="buttonbar" value="☼"/><span class="tooltip">Settings</span>
+			<input type="button" v-on:click="playercommand('prev')" class="buttonbar" value="«"/>
+			<input type="button" v-on:click="playercommand('play')" class="buttonbar" v-bind:value="nowPlaying.state.State == 2 ? '‖' : '►'"/>
+			<input type="button" v-on:click="playercommand('stop')" class="buttonbar" value="■"/>
+			<input type="button" v-on:click="playercommand('next')" class="buttonbar" value="»"/>
+		</div>
+		<div class="play-time">
+			{{minutes(nowPlaying.state.Elapsed)}}:{{seconds(nowPlaying.state.Elapsed)}}/{{minutes(nowPlaying.state.Duration)}}:{{seconds(nowPlaying.state.Duration)}}
+		</div>
+		<div class="gutter"><div v-bind:style="nowPlaying.thumb" class="thumb"></div></div>
+	</div>
+	<div class="hdivider"></div>
+	<div class="top-bar">
+		<div class="artist-pane">
+			<div class="header">
+				<span class="fill"   v-on:click="artists.resort('name')">Name{{artists.sort == "name" ? (artists.asc ? "▲" : "▼") : ""}}</span>
+				<span class="number" v-on:click="artists.resort('albums')">A{{artists.sort == "albums" ? (artists.asc ? "▲" : "▼") : ""}}</span>
+				<span class="number" v-on:click="artists.resort('tracks')">T{{artists.sort == "tracks" ? (artists.asc ? "▲" : "▼") : ""}}</span>
+			</div>
+			<div id="ArtistList" class="list"></div>
+		</div>
+		<div class="vdivider"></div>
+		<div class="artist-pane">
+			<div class="header">
+				<span class="fill"   v-on:click="albums.resort('name')">Name{{albums.sort == "name" ? (albums.asc ? "▲" : "▼") : ""}}</span>
+				<span class="number" v-on:click="albums.resort('tracks')">T{{albums.sort == "tracks" ? (albums.asc ? "▲" : "▼") : ""}}</span>
+				<span class="year"   v-on:click="albums.resort('year')">Year{{albums.sort == "year" ? (albums.asc ? "▲" : "▼") : ""}}</span>
+			</div>
+			<div id="AlbumList" class="list"></div>
+		</div>
+	</div>
+	<div class="button-bar">
+		<div class="buttonbar element" style="border-top: 0.2em solid black">
+			<input type="button" v-on:click="enqueuePL" class="buttonbar" value="→"/><span class="tooltip">Add selected tracks to playlist.</span>
+			<input type="button" v-on:click="tracks.clearselect()" class="buttonbar" value="-"/><span class="tooltip">Clear track selection.</span>
+		</div>
+		<div class="vdivider"></div>
+		<div class="buttonbar element" style="border-bottom: 0.2em solid black">
+			<input type="button" v-on:click="enqueuePLAll(true)" class="buttonbar" value="→"/><span class="tooltip">Add selected album to playlist.</span>
+			<input type="button" v-on:click="enqueuePLAll(false)" class="buttonbar" value="+"/><span class="tooltip">Add all shown tracks to playlist.</span>
+		</div>
+	</div>
+	<div id="TrackPane" class="track-pane">
+		<div class="header">
+			<span class="button"></span>
+			<span class="artist" v-on:click="tracks.resort('artist')">Artist{{tracks.sort == "artist" ? (tracks.asc ? "▲" : "▼") : ""}}</span>
+			<span class="album"  v-on:click="tracks.resort('album')" >Album{{tracks.sort == "album" ? (tracks.asc ? "▲" : "▼") : ""}}</span>
+			<span class="number" v-on:click="tracks.resort('disk')"  >D{{tracks.sort == "disk" ? (tracks.asc ? "▲" : "▼") : ""}}</span>
+			<span class="number" v-on:click="tracks.resort('track')" >T{{tracks.sort == "track" ? (tracks.asc ? "▲" : "▼") : ""}}</span>
+			<span class="name"   v-on:click="tracks.resort('name')"  >Name{{tracks.sort == "name" ? (tracks.asc ? "▲" : "▼") : ""}}</span>
+			<span class="time"   v-on:click="tracks.resort('length')">Len{{tracks.sort == "length" ? (tracks.asc ? "▲" : "▼") : ""}}</span>
+			<span class="year"   v-on:click="tracks.resort('year')"  >Year{{tracks.sort == "year" ? (tracks.asc ? "▲" : "▼") : ""}}</span>
+			<span class="fill"   v-on:click="tracks.resort('path')"  >Path{{tracks.sort == "path" ? (tracks.asc ? "▲" : "▼") : ""}}</span>
+		</div>
+		<div id="TrackList" class="list"></div>
+	</div>
+</div>
+<div class="vdivider"></div>
+<div class="side-bar">
+	<div class="playlist-pane">
+		<div class="plheader">Playlist</div>
+		<draggable class="plbody" v-model="playlist.data" v-on:update="resortPLItem" :options='{group: {name: "playlist", pull: "clone", revertClone: true}}'>
+			<div class="list-row" v-for="(v, i) in playlist.data" v-on:dblclick="jumpToPLItem(i)" v-bind:class="{ selected: playlist.pdata.Playing == i }"><span class="fill">{{((v.Artist !== undefined) ? v.Artist : "")+" - "+((v.Name !== undefined) ? v.Name : "")}}</span></div>
+		</draggable>
+		<draggable id="PLDeleter" class="pldelete" v-on:add="deletePLItem" :options='{group: {name: "playlist", pull: false}, sort: false}'></draggable>
+		<div class="buttonbar">
+			<input type="button" v-on:click="clearplaylist()" class="buttonbar" value="-"/><span class="tooltip">Clear playlist.</span>
+		</div>
+		<div class="plheader">Now Playing:</div>
+		<div id="trackDesc" class="marquee">
+			<div class="marquee-inner">
+				<div class="marquee-content">{{nowPlaying.state.State == 2 ? nowPlaying.trackDesc : ' - '}}</div>
+			</div>
+		</div>
+	</div>
+	<div id="AlbumArt" class="art-pane">
+		<div class="art-holder">
+			<img v-bind:src="nowPlaying.albumArt"></img>
+		</div>
+	</div>
+</div>
+
+<div id="EditBox" class="edit-box-backplate" v-show="editShow">
+	<div class="edit-box" v-bind:style="editPos">
+		<h3 class="edit-box-header" v-on:mousedown="begindrag(1)">Edit Track: {{editRow.ID}}</h3>
+		<table>
+			<tr><td style="width:25%;"><label class="edit-box-label">Name</label></td><td style="width:75%;"><input style="width:95%;" type="input" v-model="editRow.Name"/></td></tr>
+			<tr><td><label class="edit-box-label">Artist</label></td>                 <td><input style="width:95%;" type="input" v-model="editRow.Artist"/></td></tr>
+			<tr><td><label class="edit-box-label">Album</label></td>                  <td><input style="width:95%;" type="input" v-model="editRow.Album"/></td></tr>
+			<tr><td><label class="edit-box-label">Album Artist</label></td>           <td><input style="width:95%;" type="input" v-model="editRow.AArtist"/></td></tr>
+			<tr><td><label class="edit-box-label">Track</label></td>                  <td><input style="width:95%;" type="input" v-model.number="editRow.Track"/></td></tr>
+			<tr><td><label class="edit-box-label">Disk</label></td>                   <td><input style="width:95%;" type="input" v-model.number="editRow.Disk"/></td></tr>
+			<tr><td><label class="edit-box-label">Genre</label></td>                  <td><input style="width:95%;" type="input" v-model="editRow.Genre"/></td></tr>
+			<tr><td><label class="edit-box-label">Year</label></td>                   <td><input style="width:95%;" type="input" v-model.number="editRow.Year"/></td></tr>
+			<tr><td><label class="edit-box-label">Path</label></td>                   <td><input style="width:95%;" type="input" v-model="editRow.Path" disabled/></td></tr>
+			<tr><td style="text-align: right;"><input type="button" value="OK" v-on:click="saveEditBox"></td><td><input type="button" value="Cancel" v-on:click="closeEditBox"></td></tr>
+		</table>
+	</div>
+</div>
+
+<div id="SettingsBox" class="edit-box-backplate" v-show="settingsShow">
+	<div class="edit-box" v-bind:style="settingsPos">
+		<h3 class="edit-box-header" v-on:mousedown="begindrag(2)">Settings:</h3>
+		<table>
+			<tr><td style="width:25%;"><label class="edit-box-label">DB</label></td><td style="width:75%;"><input style="width:95%;" type="input" v-model="settings.DB"/></td></tr>
+			<tr><td style="width:25%;"><label class="edit-box-label">Player</label></td><td style="width:75%;"><input style="width:95%;" type="input" v-model="settings.Player"/></td></tr>
+			<tr><td style="text-align: right;"><input type="button" value="OK" v-on:click="saveSettingsBox"></td><td><input type="button" value="Cancel" v-on:click="closeSettingsBox"></td></tr>
+		</table>
+	</div>
+</div>
+
+</div></body>
+</html>
