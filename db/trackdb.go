@@ -51,7 +51,7 @@ func ReplaceTrack(t *Track, art *TrackArt) error {
 		return AddTrack(t, art)
 	}
 
-	r, err := trackBulkLoad.Exec(
+	_, err := trackBulkLoad.Exec(
 		t.ID, t.Name, t.Artist, t.AlbumArtist, t.Album, t.Composer, t.Publisher,
 		t.Comments, t.Disk, t.Track, t.Length, t.Genre, t.Year, t.Path)
 	if err != nil {
@@ -74,8 +74,8 @@ func UpdateTrack(t *Track) error {
 	return err
 }
 
-func UpdateTrackArt(art *TrackArt) error {
-	_, err := trackArtUpdate.Exec(t.ID, art.Art, art.ArtMIME)
+func UpdateTrackArt(id int, art *TrackArt) error {
+	_, err := trackArtUpdate.Exec(id, art.Art, art.ArtMIME)
 	return err
 }
 

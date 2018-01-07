@@ -96,8 +96,11 @@ var queries = map[sortOrder]*queryHolder{
 
 var listCacheQuery *sql.Stmt
 var trackQuery *sql.Stmt
-var trackUpdate *sql.Stmt
+var trackArtQuery *sql.Stmt
 var trackInsert *sql.Stmt
+var trackBulkLoad *sql.Stmt
+var trackUpdate *sql.Stmt
+var trackArtUpdate *sql.Stmt
 
 func init() {
 	var err error
