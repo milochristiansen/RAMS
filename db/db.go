@@ -176,7 +176,7 @@ func init() {
 			Length = ?11,
 			Genre = ?12,
 			Year = ?13,
-			Path = ?14
+			Path = ?14;
 	`)
 	if err != nil {
 		panic(err)
@@ -187,8 +187,7 @@ func init() {
 			Art = ?2,
 			ArtMIME = ?3
 		where
-			ID = ?1
-		limit 1;
+			ID = ?1;
 	`)
 	if err != nil {
 		panic(err)
