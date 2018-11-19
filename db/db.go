@@ -104,7 +104,7 @@ var trackArtUpdate *sql.Stmt
 
 func init() {
 	var err error
-	DB, err = sql.Open("sqlite3", "file:metadata2.db")
+	DB, err = sql.Open("sqlite3", "file:metadata.db")
 	if err != nil {
 		panic(err)
 	}
