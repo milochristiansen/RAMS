@@ -42,6 +42,8 @@ import "github.com/milochristiansen/RAMS/helpers"
 // }
 import "C"
 
+const volume = 80
+
 var GlobalPlayer *Player
 
 type Player struct {
@@ -104,6 +106,7 @@ func InitPlayer(keys chan int, mediaRoot, dbServer string) {
 
 	p.vlc = C.libvlc_new(0, nil)
 	p.mp = C.libvlc_media_player_new(p.vlc)
+	C.libvlc_audio_set_volume(p.mp, volume)
 	p.em = C.libvlc_media_player_event_manager(p.mp)
 
 	// Don't forget the other places a new player is created!
@@ -416,6 +419,7 @@ func (p *Player) Dequeue(index int) {
 		C.libvlc_media_player_stop(p.mp)
 		C.libvlc_media_player_release(p.mp)
 		p.mp = C.libvlc_media_player_new(p.vlc)
+		C.libvlc_audio_set_volume(p.mp, volume)
 		p.em = C.libvlc_media_player_event_manager(p.mp)
 		C.goAttach(p.em, C.libvlc_MediaPlayerEndReached)
 		C.goAttach(p.em, C.libvlc_MediaPlayerTimeChanged)
@@ -442,6 +446,7 @@ func (p *Player) Dequeue(index int) {
 		C.libvlc_media_player_stop(p.mp)
 		C.libvlc_media_player_release(p.mp)
 		p.mp = C.libvlc_media_player_new(p.vlc)
+		C.libvlc_audio_set_volume(p.mp, volume)
 		p.em = C.libvlc_media_player_event_manager(p.mp)
 		C.goAttach(p.em, C.libvlc_MediaPlayerEndReached)
 		C.goAttach(p.em, C.libvlc_MediaPlayerTimeChanged)
