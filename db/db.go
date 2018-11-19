@@ -162,7 +162,7 @@ func init() {
 	}
 
 	trackUpdate, err = DB.Prepare(`
-		update Tracks
+		update Tracks set
 			ID = ?1,
 			Name = ?2,
 			Artist = ?3,
@@ -183,7 +183,7 @@ func init() {
 	}
 
 	trackArtUpdate, err = DB.Prepare(`
-		update Tracks
+		update Tracks set
 			Art = ?2,
 			ArtMIME = ?3
 		where
