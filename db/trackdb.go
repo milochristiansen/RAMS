@@ -121,7 +121,7 @@ func QueryTrack(id int) (*Track, error) {
 func QueryTrackArt(id int) (*TrackArt, error) {
 	row := trackArtQuery.QueryRow(id)
 	art := &TrackArt{}
-	err := row.Scan(art.Art, art.ArtMIME)
+	err := row.Scan(&art.Art, &art.ArtMIME)
 	if err != nil {
 		return nil, err
 	}
