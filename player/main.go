@@ -99,6 +99,11 @@ func main() {
 		return true, nil
 	}))
 
+	http.HandleFunc("/volume/", helpers.MakeIntHandler("/volume/", func(volume int) (interface{}, error) {
+		GlobalPlayer.SetVolume(volume)
+		return true, nil
+	}))
+
 	http.HandleFunc("/socket", GlobalSockets.Upgrade)
 
 	InitPlayer(keys, MediaRoot, DBServer)

@@ -42,8 +42,6 @@ import "github.com/milochristiansen/RAMS/helpers"
 // }
 import "C"
 
-const volume = 80
-
 var GlobalPlayer *Player
 
 type Player struct {
@@ -58,6 +56,8 @@ type Player struct {
 	playlist   []int
 	tracks     []*track
 	playingIdx int
+
+	volume int
 
 	stream string // Stream now-playing info.
 
@@ -99,6 +99,7 @@ func InitPlayer(keys chan int, mediaRoot, dbServer string) {
 	p.root = mediaRoot
 	p.db = dbServer
 	p.keys = keys
+	p.volume = 80
 
 	// TODO: Error check all the VLC functions.
 
@@ -106,7 +107,7 @@ func InitPlayer(keys chan int, mediaRoot, dbServer string) {
 
 	p.vlc = C.libvlc_new(0, nil)
 	p.mp = C.libvlc_media_player_new(p.vlc)
-	C.libvlc_audio_set_volume(p.mp, volume)
+	C.libvlc_audio_set_volume(p.mp, C.int(p.volume))
 	p.em = C.libvlc_media_player_event_manager(p.mp)
 
 	// Don't forget the other places a new player is created!
@@ -171,6 +172,22 @@ func InitPlayer(keys chan int, mediaRoot, dbServer string) {
 	}()
 }
 
+func (p *Player) SetVolume(volume int) {
+	p.volume = volume
+	if p.volume < 0 {
+		p.volume = 0
+	}
+	if p.volume > 100 {
+		p.volume = 100
+	}
+
+	GlobalPlayer.Lock()
+	C.libvlc_audio_set_volume(p.mp, C.int(p.volume))
+	GlobalSockets.Broadcast(ChangeState, GlobalPlayer.state())
+	GlobalPlayer.Unlock()
+	p.save()
+}
+
 func (p *Player) FakeInput(key int) {
 	switch {
 	case key >= KeyNext || key <= KeyStop:
@@ -179,7 +196,6 @@ func (p *Player) FakeInput(key int) {
 	default:
 		// Error
 	}
-
 }
 
 func (p *Player) Reorder(idx, nidx int) bool {
@@ -419,7 +435,7 @@ func (p *Player) Dequeue(index int) {
 		C.libvlc_media_player_stop(p.mp)
 		C.libvlc_media_player_release(p.mp)
 		p.mp = C.libvlc_media_player_new(p.vlc)
-		C.libvlc_audio_set_volume(p.mp, volume)
+		C.libvlc_audio_set_volume(p.mp, C.int(p.volume))
 		p.em = C.libvlc_media_player_event_manager(p.mp)
 		C.goAttach(p.em, C.libvlc_MediaPlayerEndReached)
 		C.goAttach(p.em, C.libvlc_MediaPlayerTimeChanged)
@@ -446,7 +462,7 @@ func (p *Player) Dequeue(index int) {
 		C.libvlc_media_player_stop(p.mp)
 		C.libvlc_media_player_release(p.mp)
 		p.mp = C.libvlc_media_player_new(p.vlc)
-		C.libvlc_audio_set_volume(p.mp, volume)
+		C.libvlc_audio_set_volume(p.mp, C.int(p.volume))
 		p.em = C.libvlc_media_player_event_manager(p.mp)
 		C.goAttach(p.em, C.libvlc_MediaPlayerEndReached)
 		C.goAttach(p.em, C.libvlc_MediaPlayerTimeChanged)
@@ -514,6 +530,8 @@ func (p *Player) state() *statusRes {
 		IsStream:   isstream,
 
 		State: rstate,
+
+		Volume: p.volume,
 	}
 }
 
@@ -529,6 +547,8 @@ type statusRes struct {
 	IsStream   bool
 
 	State int // 0: Stopped, 1: Paused, 2: Playing
+
+	Volume int // 0-100
 }
 
 func loadMedia(vlc *C.libvlc_instance_t, path, root string) *track {
