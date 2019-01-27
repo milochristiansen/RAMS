@@ -29,6 +29,7 @@ import (
 	"os"
 	"os/exec"
 	"syscall"
+	"time"
 )
 
 // parses through the /proc/bus/input/devices file for keyboard devices.
@@ -80,16 +81,16 @@ func KeyServer() chan int {
 	syscall.Setgid(0)
 	syscall.Setuid(0)
 
-	// Open the first keyboard device.
-	input, err := os.OpenFile(devices[0], os.O_RDONLY, 0600)
-	if err != nil {
-		panic(err)
-	}
-	defer input.Close()
-
 	ch := make(chan int)
 	var buffer = make([]byte, 24)
 	go func(ch chan int) {
+		// Open the first keyboard device.
+		input, err := os.OpenFile(devices[0], os.O_RDONLY, 0600)
+		if err != nil {
+			panic(err)
+		}
+		defer input.Close()
+
 		for {
 			// read the input events as they come in
 			n, err := input.Read(buffer)
